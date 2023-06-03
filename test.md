@@ -2,19 +2,12 @@
 
 @startuml
 
-show circle
-
-class ImplementClass
-abstract class AbstractClass
-interface InterfaceClass
-
-enum Enum {
-  ONE
-  TWO
-  THREE
-}
-
-annotation Annotation
-class CustomClass << (S,orchid) custom >>
+actor Actor <<stereotype 01>>
+boundary Boundary <<stereotype 02>>
+control Control <<stereotype 03>>
+entity Entity <<stereotype 04>>
+database Database <<stereotype 05>>
+participant Participant <<stereotype 06>>
+collections Collections <<stereotype 07>>
 
 @enduml
