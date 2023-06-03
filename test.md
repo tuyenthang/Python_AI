@@ -1,0 +1,20 @@
+````plantuml
+
+@startuml
+
+show circle
+
+class ImplementClass
+abstract class AbstractClass
+interface InterfaceClass
+
+enum Enum {
+  ONE
+  TWO
+  THREE
+}
+
+annotation Annotation
+class CustomClass << (S,orchid) custom >>
+
+@enduml
