@@ -27,9 +27,9 @@ jobs:
 
       - name: Collect PR comments
         run: |
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          PR_NUMBER=$(jq --raw-output .pulls.number "$GITHUB_EVENT_PATH")
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                       "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments")
+                       "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
           echo "Comments from PR #$PR_NUMBER:"
           echo "$COMMENTS" | jq -r -c '.[] | "User: \(.user.login), Comment: \(.body)"'
 
