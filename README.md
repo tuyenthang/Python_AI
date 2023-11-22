@@ -5,3 +5,10 @@ This is for training git
 
 test conflict
 
+
+
+this is for testing
+line 1
+line 2
+
+
