@@ -30,4 +30,4 @@ jobs:
 
       - name: Collect Comments and Export to CSV
         run: |
-          python .github/scripts/collect_comments.py ${{ github.event.client_payload.pull_request.number }}
+          python .github/scripts/collect_comments.py ${{ github.event.pull_request.number }}
