@@ -1,6 +1,7 @@
 import os
 import requests
 import csv
+import sys
 
 def collect_comments(pr_number):
     # GitHub API endpoint to get comments on a pull request
@@ -23,5 +24,5 @@ def collect_comments(pr_number):
         csv_writer.writerows([[comment] for comment in comments])
 
 if __name__ == '__main__':
-    pr_number = int(os.argv[1])
+    pr_number = int(sys.argv[1])
     collect_comments(pr_number)
