@@ -24,5 +24,9 @@ def collect_comments(pr_number):
         csv_writer.writerows([[comment] for comment in comments])
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print("Usage: collect_comments.py <PR_NUMBER>")
+        sys.exit(1)
+
     pr_number = int(sys.argv[1])
     collect_comments(pr_number)
