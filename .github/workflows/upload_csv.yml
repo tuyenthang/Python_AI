@@ -1,0 +1,44 @@
+name: upload csv debug
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+  workflow_dispatch:
+
+jobs:
+  collect-comments:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Find PR number
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          echo "Comments from PR #$PR_NUMBER:"
+
+      - name: Collect PR comments
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                       "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
+          echo "Comments from PR #$PR_NUMBER:"
+
+          echo "User,File,Line,Comment" > comments.csv
+          echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
+
+  upload-csv:
+    needs: collect-comments
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload CSV
+        uses: actions/upload-artifact@v2
+        with:
+          name: comments
+          path: comments.csv
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
