@@ -23,16 +23,23 @@ jobs:
 
       - name: Debug
         run: cat $GITHUB_EVENT_PATH
+        
+      - name: debug GITHUB_REF
+        run: cat $GITHUB_REF
 
       - name: Find PR number
         run: |
           PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           echo "Comments from PR #$PR_NUMBER:"
+
+          PR_NUMBER1=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+          echo "Comments from PR #$PR_NUMBER1:"
         
 
       - name: Collect PR comments
         run: |
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          #PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                        "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
           echo "Comments from PR #$PR_NUMBER:"
