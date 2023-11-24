@@ -14,6 +14,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      
+    - name: Debug GitHub context
+      run: echo "${{ toJson(github) }}"
 
     - name: Get PR number
       id: pr_number
