@@ -11,20 +11,24 @@ jobs:
   your-job:
     runs-on: ubuntu-latest
 
+
     steps:
+    - name: Install dependencies
+      run: npm install -g actions/http-request@v2
+    
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Debug GitHub context
-      run: echo "${{ toJson(github) }}"
 
     - name: Get PR number
       id: pr_number
-      run: |
-        PR_NUMBER=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" \
-          | jq -r .number)
-        echo "PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
+      uses: actions/http-request@v2
+      with:
+        url: https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}
+        method: GET
+        headers:
+          Authorization: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        PR_NUMBER: ${{fromJson(steps.pr_number.outputs.data).number}}
 
     - name: Use PR number
       run: echo "The pull request number is $PR_NUMBER"
