@@ -29,11 +29,24 @@ jobs:
 
           echo "User,File,Line,Comment" > comments.csv
           echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
+        
+      - name: Display current working directory
+        run: pwd
+
+      - name: List files
+        run: ls -R
+      
 
   upload-csv:
     needs: collect-comments
     runs-on: ubuntu-latest
     steps:
+      - name: Display current working directory
+        run: pwd
+
+      - name: List files
+        run: ls -R
+        
       - name: Upload CSV
         uses: actions/upload-artifact@v2
         with:
