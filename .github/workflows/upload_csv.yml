@@ -27,8 +27,10 @@ jobs:
                        "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
           echo "Comments from PR #$PR_NUMBER:"
 
-          echo "User,File,Line,Comment" > comments.csv
-          echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
+          # echo "User,File,Line,Comment" > comments.csv
+          # echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
+          echo "List of the comments" > comments.csv
+          echo "$COMMENTS" | jq -r -c '.[] | "\(\(.position)\, 1\) \#todo \(.body)"' >> comments.csv
         
       - name: Display current working directory
         run: pwd
@@ -43,21 +45,21 @@ jobs:
           path: comments.csv
       
 
-  upload-csv:
-    needs: collect-comments
-    runs-on: ubuntu-latest
-    steps:
-      - name: Display current working directory
-        run: pwd
+  # upload-csv:
+  #   needs: collect-comments
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Display current working directory
+  #       run: pwd
 
-      - name: List files
-        run: ls -R
+  #     - name: List files
+  #       run: ls -R
         
-      - name: Upload CSV
-        uses: actions/upload-artifact@v2
-        with:
-          name: comments
-          path: comments.csv
+  #     - name: Upload CSV
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: comments
+  #         path: comments.csv
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
