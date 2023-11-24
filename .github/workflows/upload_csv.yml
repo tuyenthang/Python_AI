@@ -29,22 +29,22 @@ jobs:
 
           # echo "User,File,Line,Comment" > comments.csv
           # echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
-          echo "List ","of the comments" > comments.csv
-          echo "$COMMENTS" | jq -r -c '.[] | "(\(.position)"," 1) #todo \(.body)"' >> comments.csv
+          echo "List of the comments" > comments.csv
+          echo "$COMMENTS" | jq -r -c '.[] | "(\(.position), 1) #todo \(.body)"' >> comments.csv
         
       - name: Display current working directory
         run: pwd
 
       - name: List files
         run: ls -R
-        
+
+      # TODO: Upload CSV should be run in a seperated job
       - name: Upload CSV to workspace
         uses: actions/upload-artifact@v2
         with:
           name: comments
           path: comments.csv
       
-
   # upload-csv:
   #   needs: collect-comments
   #   runs-on: ubuntu-latest
