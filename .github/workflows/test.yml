@@ -4,8 +4,7 @@ on:
   pull_request_target:
     types:
       - opened
-      - open
-  # Allows you to run this workflow manually from the Actions tab
+      - synchronize  # This type is triggered when a new commit is pushed to the branch of the pull request
   workflow_dispatch:
 
 jobs:
@@ -21,7 +20,11 @@ jobs:
 
     - name: Get PR number
       id: pr_number
-      run: echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+      run: |
+        PR_NUMBER=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" \
+          | jq -r .number)
+        echo "PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
 
     - name: Use PR number
       run: echo "The pull request number is $PR_NUMBER"
