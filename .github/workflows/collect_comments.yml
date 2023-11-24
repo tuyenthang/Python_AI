@@ -25,9 +25,15 @@ jobs:
       - name: Debug
         run: cat $GITHUB_EVENT_PATH
 
+      - name: Find PR number
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          echo "Comments from PR #$PR_NUMBER:"
+        
+
       - name: Collect PR comments
         run: |
-          PR_NUMBER=$(jq --raw-output .pulls.number "$GITHUB_EVENT_PATH")
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                        "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
           echo "Comments from PR #$PR_NUMBER:"
