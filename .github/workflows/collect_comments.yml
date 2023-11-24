@@ -50,6 +50,8 @@ jobs:
           # echo "$COMMENTS" | jq -r -c '.[] | "User: \(.user.login), Comment: \(.body)"'
           # echo "$COMMENTS" | jq -r -c '.[] | "User: \(.user.login), Comment: \(.body), File: \(.path), Line: \(.position)"'
           echo "$COMMENTS" | jq -r -c '.[] | "User: \(.user.login), File: \(.path), Line: \(.position), Comment: \(.body)"' >> comments.csv
+      - name: List file
+        run: ls
   
   upload-csv:
     needs: collect-comments
