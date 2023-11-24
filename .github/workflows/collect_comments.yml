@@ -26,8 +26,8 @@ jobs:
       - name: Debug
         run: cat $GITHUB_EVENT_PATH
         
-      - name: debug GITHUB_REF
-        run: cat $GITHUB_REF
+      # - name: debug GITHUB_REF
+        # run: cat $GITHUB_REF
 
       - name: Find PR number
         run: |
