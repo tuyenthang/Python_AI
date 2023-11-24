@@ -29,7 +29,7 @@ jobs:
 
           # echo "User,File,Line,Comment" > comments.csv
           # echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
-          echo "List of the comments" > comments.csv
+          echo "List ","of the comments" > comments.csv
           echo "$COMMENTS" | jq -r -c '.[] | "(\(.position)"," 1) #todo \(.body)"' >> comments.csv
         
       - name: Display current working directory
