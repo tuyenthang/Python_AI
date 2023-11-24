@@ -1,9 +1,10 @@
 name: Your Workflow
 
 on:
-  pull_request:
+  pull_request_target:
     types:
       - opened
+      - open
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
