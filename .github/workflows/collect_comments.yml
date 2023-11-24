@@ -57,6 +57,14 @@ jobs:
     needs: collect-comments
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: List files
+        run: ls
+
       - name: Upload CSV
         uses: actions/upload-artifact@v2
         with:
