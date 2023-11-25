@@ -9,7 +9,8 @@ on:
 
 jobs:
   collect-comments:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: [ self-hosted, autoscaling-runner ]
 
     steps:
       - name: Checkout code
