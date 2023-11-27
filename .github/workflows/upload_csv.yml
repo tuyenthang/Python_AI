@@ -35,7 +35,7 @@ jobs:
             # Initialize variables to track the current file
             CURRENT_FILE=""
             
-            while IFS= read -r COMMENT; do
+            for COMMENT in $(echo "$COMMENTS" | jq -c '.[]'); do
               # Debug: Print each COMMENT
               echo "Current COMMENT: $COMMENT"
             
@@ -52,7 +52,6 @@ jobs:
               
               # Append the comment to the CSV file
               echo "(line $POSITION, 0) #todo $BODY" >> comments.csv
-            done <<< "$COMMENTS"
           fi
       # TODO: Upload CSV should be run in a seperated job
       - name: Upload CSV to workspace
