@@ -37,7 +37,7 @@ jobs:
             FIRST=true
       
             # Use jq to process each COMMENT
-            echo "$COMMENTS" | jq -r -c '.[] | "(\(.path), line \(.position), 0) #todo \(.body)"' | while IFS= read -r COMMENT; do
+            echo "$COMMENTS" | jq -r -c '.[] | "\(.path), (\(.position), 0) #todo \(.body)"' | while IFS= read -r COMMENT; do
               FILE=$(echo "$COMMENT" | cut -d',' -f1)
         
               # Check if the file has changed
