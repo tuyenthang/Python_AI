@@ -1,44 +1,59 @@
-name: upload csv debug
+name: Collect comments in pull requests from peer review
 
 on:
   pull_request:
     types:
-      - opened
       - closed
   workflow_dispatch:
 
 jobs:
   collect-comments:
-    # runs-on: ubuntu-latest
-    runs-on: [ self-hosted, autoscaling-runner ]
+    # runs-on: [ self-hosted, autoscaling-runner ]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Find PR number
-        run: |
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          echo "Comments from PR #$PR_NUMBER:"
-
       - name: Collect PR comments
         run: |
           PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                       "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
           echo "Comments from PR #$PR_NUMBER:"
-
-          # echo "User,File,Line,Comment" > comments.csv
-          # echo "$COMMENTS" | jq -r -c '.[] | "\(.user.login),\(.path),\(.position),\(.body)"' >> comments.csv
-          echo "List of the comments" > comments.csv
-          echo "$COMMENTS" | jq -r -c '.[] | "(\(.position), 1) #todo \(.body)"' >> comments.csv
-        
-      - name: Display current working directory
-        run: pwd
-
-      - name: List files
-        run: ls -R
-
+          
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                       "${GITHUB_API_URL}/repos/${{ github.repository }}/pulls/$PR_NUMBER/comments")
+         
+          echo "GitHub API Response:"
+          echo "$COMMENTS"
+          
+          # Debug: Print the length of COMMENTS
+          echo "Length of COMMENTS: ${#COMMENTS}"
+          # Check if there are no comments
+          if [ -z "$COMMENTS" ]; then
+            echo "There are no comments" >> comments.csv
+          else
+            # Initialize variables to track the current file
+            CURRENT_FILE=""
+            
+            while IFS= read -r COMMENT; do
+              # Debug: Print each COMMENT
+              echo "Current COMMENT: $COMMENT"
+            
+              # Extract data from the comment using jq
+              POSITION=$(echo "$COMMENT" | jq -r '.position')
+              BODY=$(echo "$COMMENT" | jq -r '.body')
+              FILE=$(echo "$COMMENT" | jq -r '.path')
+              
+              # Check if the file has changed
+              if [ "$FILE" != "$CURRENT_FILE" ]; then
+                echo "$FILE" >> comments.csv
+                CURRENT_FILE="$FILE"
+              fi
+              
+              # Append the comment to the CSV file
+              echo "(line $POSITION, 0) #todo $BODY" >> comments.csv
+            done <<< "$COMMENTS"
+          fi
       # TODO: Upload CSV should be run in a seperated job
       - name: Upload CSV to workspace
         uses: actions/upload-artifact@v2
