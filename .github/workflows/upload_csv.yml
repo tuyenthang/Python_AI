@@ -34,25 +34,47 @@ jobs:
           else
             # Initialize variables to track the current file
             CURRENT_FILE=""
-            
-            for COMMENT in $(echo "$COMMENTS" | jq -c '.[]'); do
-              # Debug: Print each COMMENT
-              echo "Current COMMENT: $COMMENT"
-            
-              # Extract data from the comment using jq
-              POSITION=$(echo "$COMMENT" | jq -r '.position')
-              BODY=$(echo "$COMMENT" | jq -r '.body')
-              FILE=$(echo "$COMMENT" | jq -r '.path')
-              
+            FIRST=true
+      
+            # Use jq to process each COMMENT
+            echo "$COMMENTS" | jq -r -c '.[] | "(\(.path), line \(.position), 0) #todo \(.body)"' | while IFS= read -r COMMENT; do
+              FILE=$(echo "$COMMENT" | cut -d',' -f1)
+        
               # Check if the file has changed
               if [ "$FILE" != "$CURRENT_FILE" ]; then
-                echo "$FILE" >> comments.csv
+                # Print the filename only if it's not the first file
+                if [ "$FIRST" = false ]; then
+                  echo
+                else
+                  FIRST=false
+                fi
                 CURRENT_FILE="$FILE"
+                echo "$CURRENT_FILE"
               fi
               
-              # Append the comment to the CSV file
-              echo "(line $POSITION, 0) #todo $BODY" >> comments.csv
+              # Print the comment
+              echo "$COMMENT" | cut -d',' -f2- >> comments.csv
+            done
           fi
+            
+            # for COMMENT in $(echo "$COMMENTS" | jq -c '.[]'); do
+            #   # Debug: Print each COMMENT
+            #   echo "Current COMMENT: $COMMENT"
+            
+            #   # Extract data from the comment using jq
+            #   POSITION=$(echo "$COMMENT" | jq -r '.position')
+            #   BODY=$(echo "$COMMENT" | jq -r '.body')
+            #   FILE=$(echo "$COMMENT" | jq -r '.path')
+              
+            #   # Check if the file has changed
+            #   if [ "$FILE" != "$CURRENT_FILE" ]; then
+            #     echo "$FILE" >> comments.csv
+            #     CURRENT_FILE="$FILE"
+            #   fi
+              
+            #   # Append the comment to the CSV file
+            #   echo "(line $POSITION, 0) #todo $BODY" >> comments.csv
+          # fi
       # TODO: Upload CSV should be run in a seperated job
       - name: Upload CSV to workspace
         uses: actions/upload-artifact@v2
