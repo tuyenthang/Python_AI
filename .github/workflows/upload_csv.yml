@@ -49,7 +49,7 @@ jobs:
                   FIRST=false
                 fi
                 CURRENT_FILE="$FILE"
-                echo "$CURRENT_FILE"
+                echo "$CURRENT_FILE" >> comments.csv
               fi
               
               # Print the comment
