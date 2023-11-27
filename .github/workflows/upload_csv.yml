@@ -1,10 +1,11 @@
 name: Collect comments in pull requests from peer review
 
 on:
-  pull_request:
-    types:
-      - closed
   workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number'
+        required: true
 
 jobs:
   collect-comments:
@@ -14,10 +15,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Set PR number
+        id: set-pr-number
+        run: echo "::set-output name=pr_number::${{ github.event.inputs.pr_number }}"
 
       - name: Collect PR comments
         run: |
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          PR_NUMBER="${{ steps.set-pr-number.outputs.pr_number }}"
           echo "Comments from PR #$PR_NUMBER:"
           
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -41,10 +46,6 @@ jobs:
         
               # Print the filename only if it's a new file
               if [ "$FILE" != "$CURRENT_FILE" ]; then
-                # Avoid printing an extra newline before the first filename
-                if [ -n "$CURRENT_FILE" ]; then
-                  echo >> comments.csv
-                fi
                 CURRENT_FILE="$FILE"
                 echo "$CURRENT_FILE" >> comments.csv  # Write the filename to the CSV file
               fi
@@ -53,47 +54,13 @@ jobs:
               echo "$COMMENT" | cut -d',' -f2- >> comments.csv
             done
           fi
-            
-            # for COMMENT in $(echo "$COMMENTS" | jq -c '.[]'); do
-            #   # Debug: Print each COMMENT
-            #   echo "Current COMMENT: $COMMENT"
-            
-            #   # Extract data from the comment using jq
-            #   POSITION=$(echo "$COMMENT" | jq -r '.position')
-            #   BODY=$(echo "$COMMENT" | jq -r '.body')
-            #   FILE=$(echo "$COMMENT" | jq -r '.path')
-              
-            #   # Check if the file has changed
-            #   if [ "$FILE" != "$CURRENT_FILE" ]; then
-            #     echo "$FILE" >> comments.csv
-            #     CURRENT_FILE="$FILE"
-            #   fi
-              
-            #   # Append the comment to the CSV file
-            #   echo "(line $POSITION, 0) #todo $BODY" >> comments.csv
-          # fi
-      # TODO: Upload CSV should be run in a seperated job
+          
+      # TODO: Upload CSV should be run in a separate job
       - name: Upload CSV to workspace
         uses: actions/upload-artifact@v2
         with:
           name: comments
           path: comments.csv
-      
-  # upload-csv:
-  #   needs: collect-comments
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Display current working directory
-  #       run: pwd
-
-  #     - name: List files
-  #       run: ls -R
-        
-  #     - name: Upload CSV
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: comments
-  #         path: comments.csv
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
